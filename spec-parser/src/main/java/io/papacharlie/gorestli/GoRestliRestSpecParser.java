@@ -13,10 +13,7 @@ import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.Reader;
 import java.io.UncheckedIOException;
-import java.util.Collections;
-import java.util.HashSet;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
@@ -52,7 +49,7 @@ public class GoRestliRestSpecParser {
       parsedSpec._resources.addAll(new ResourceParser(result.first, result.second, typeParser).parse());
     }
 
-    Set<NamedDataSchema> extraSchemas = new HashSet<>();
+    Set<NamedDataSchema> extraSchemas = new LinkedHashSet<>();
     for (String schemaName : namedDataSchemasToGenerate) {
       NamedDataSchema schema = schemas.get(schemaName);
       Preconditions.checkState(schema != null, "%s was not found in %s", schemaName, resolverPath);
@@ -71,13 +68,13 @@ public class GoRestliRestSpecParser {
    * Returns the set of all {@link NamedDataSchema}s that the given schema depends on (including the given schema
    * itself)
    */
-  private static Set<NamedDataSchema> expandSchema(DataSchemaParser parser, NamedDataSchema schema) {
+  private static List<NamedDataSchema> expandSchema(DataSchemaParser parser, NamedDataSchema schema) {
     ResourceSchema resourceSchema = new ResourceSchema()
         .setSchema(schema.getFullName());
     // Author's note: creating a fake ResourceSchema just to use the SnapshotGenerator may seem like hacky but it's the
     // best way to ensure logical parity
     SnapshotGenerator snapshotGenerator = new SnapshotGenerator(resourceSchema, parser.getSchemaResolver());
-    return new HashSet<>(snapshotGenerator.generateModelList());
+    return snapshotGenerator.generateModelList();
   }
 
   /**
