@@ -92,7 +92,7 @@ var (
 )
 
 func (d *reader) ReadMap(reader Code, mapReader func(reader, key Code, def *Group)) Code {
-	key := Id("key")
+	key := Id("readerMapKey")
 	return Add(reader).Dot("ReadMap").Call(Func().Params(Add(d).Add(ReaderQual), Add(key).String()).Params(Err().Error()).BlockFunc(func(def *Group) {
 		mapReader(d, key, def)
 	}))
